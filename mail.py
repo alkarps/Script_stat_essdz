@@ -16,7 +16,7 @@ List changes on 20.05.2015:
 '''
 # -*- coding: utf8 -*-
 
-def sent_mail(text, to, subj, server = None, port = None, user_name = None, user_passwd = None, images = None):
+def sent_mail (text, to, subj, server = None, port = None, user_name = None, user_passwd = None, images = None, debug = None):
     u'''Функция отправки письма.
     На вход принимает следующие значения: to, text, subj [, server, port, user_name, user_passwd].
     Параметры server, port, user_name, user_passwd не обязательны. Передаются через ключи при каждом вызове функции.
@@ -24,6 +24,7 @@ def sent_mail(text, to, subj, server = None, port = None, user_name = None, user
     import smtplib;
     from email.MIMEText import MIMEText;
     from email.mime.multipart import MIMEMultipart;
+    import sys;
     if server is None:
         server = default_server;
     if port is None:
@@ -51,15 +52,20 @@ def sent_mail(text, to, subj, server = None, port = None, user_name = None, user
             img.add_header('Content-ID', image);
             msgRoot.attach(img);
     # отправка
-    s = smtplib.SMTP(server, port)
     try:
-        s.ehlo()
-        s.starttls()
-        s.ehlo()
-        s.login(user_name, user_passwd)
-        s.sendmail(user_name, to, msgRoot.as_string())
-    finally:
-        s.quit()
+        s = smtplib.SMTP(server, port);
+        s.ehlo();
+        if debug is not None:
+            s.set_debuglevel(1);
+        s.starttls();
+        s.ehlo();
+        s.login(user_name, user_passwd);
+        try:
+            s.sendmail(user_name, to, msgRoot.as_string());
+        finally:
+            s.close();
+    except Exception, exc:
+        sys.exit( "mail failed; %s" % str(exc) );
 
 
 def main():
@@ -73,8 +79,10 @@ def main():
     arg_parser.add_argument('-p','--port', type=int, default=default_port, required=False, help="Порт сервера почты. Значение по-умолчанию: %(default)s");
     arg_parser.add_argument('-u','--user', type=str, default=default_user, required=False, help="Email отправителя, а так же логин для авторизации на сервере почты. Значение по-умолчанию: %(default)s");
     arg_parser.add_argument('-up','--user_passwd', type=str, default=default_passwd, required=False, help="Пароль для авторизации на сервере почты.");
+    arg_parser.add_argument('-i','--images', type=str, default=None, required=False, help="Адрес картинок для добавления в письмо.");
+    arg_parser.add_argument('-d','--debug', type=str, default=None, required=False, help="Включить дебаг-режим при отправки письма.");
     args = vars(arg_parser.parse_args());
-    sent_mail(args['text'], args['to'], args['subj'], args['server'], args['port'], args['user'], args['user_passwd']);
+    sent_mail(args['text'], args['to'], args['subj'], args['server'], args['port'], args['user'], args['user_passwd'], args['images'], args['debug']);
     
 
 default_server = 'outlook.office365.com';
