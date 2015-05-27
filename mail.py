@@ -49,7 +49,7 @@ def sent_mail (text, to, subj, server = None, port = None, user_name = None, use
             fp = open(image, 'rb');
             img = MIMEImage(fp.read());
             fp.close();
-            img.add_header('Content-ID', image);
+            img.add_header('Content-ID', os.path.basename(image));
             msgRoot.attach(img);
     # отправка
     try:
@@ -84,10 +84,10 @@ def main():
     args = vars(arg_parser.parse_args());
     sent_mail(args['text'], args['to'], args['subj'], args['server'], args['port'], args['user'], args['user_passwd'], args['images'], args['debug']);
     
-
-default_server = 'outlook.office365.com';
-default_port = 587;
-default_user = 'default';
-default_passwd = 'default';
+import mailsettings as ms;
+default_server = ms.default_server;
+default_port = ms.default_port;
+default_user = ms.default_user;
+default_passwd = ms.default_passwd;
 if __name__ == '__main__':
     main();
