@@ -25,8 +25,6 @@ def getResult(login,password,host,port,sid,query):
         query - select-запрос.
     Выходные параметры: результат выполнения запроса в виде списка кортежей.
     """
-    #import os;
-    #os.environ('ORACLE_HOME') = '/home/coder/rcuHome/';
     tns = cx_Oracle.makedsn(host,port,sid);
     con = cx_Oracle.connect(login,password,tns,threaded=True);
     cur = con.cursor();

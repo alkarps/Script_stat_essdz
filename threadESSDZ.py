@@ -79,8 +79,10 @@ def getESSDZStatByTNS(dicTable, setting):
 
 
 if __name__ == '__main__':
+    import os;
+    import settingfile;
+    os.putenv('ORACLE_HOME','/home/coder/rcuHome/');
     #Список настроек подключений к БД. В картежах параметры подключения в седующем порядке: логин, пароль, хост, порт, сид, название региона (может быть на русском)
-    settingList = [('login','password','localhost','port','sid', 'name'),('login','password','localhost','port','sid', 'name')];
     processList = [];
     logging.basicConfig(filename='ESSDZ_stat_log.log', format = u'%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s', level = logging.DEBUG);
     logging.info("Start getting statistic");
@@ -88,7 +90,7 @@ if __name__ == '__main__':
     dicTable = manager.dict();
     #Запускаем на каждую БД свой поток.
     logging.info("Start threads");
-    for setting in settingList:
+    for setting in settingfile.settingList:
         process = Process(target=getESSDZStatByTNS, args=(dicTable,setting));
         processList.append(process);
         process.start();
@@ -136,17 +138,15 @@ if __name__ == '__main__':
     keys = dicTable.keys();
     errorTables = "";
     pics = [];
+    path = os.getcwd();
     for key in keys:
         emailText = emailText + dicTable[key][0];
         errorTables = errorTables + "\n <h2>" + key + "</h2>\n"+dicTable[key][1] + "<br>" +dicTable[key][2];
-        pics.append(key + '_pic.png');
+        pics.append(os.path.normpath(path + '//' + key + '_pic.png'));
+    print pics;
     emailText = emailText + "</table>\n" + errorTables + "</body></html>";
     #print emailText;
     logging.info("Finish building text mail");
-    #Кому отправлять письмо
-    to = 'to@mail.ru';
-    #Тема письма
-    subject = 'YESSDZ stats'
     logging.info("Start sending mail");
-    mail.sent_mail(text = emailText, to = to, subj = subject, images = pics);
+    mail.sent_mail(text = emailText, to = settingfile.to, subj = settingfile.subject, images = pics);
     logging.info("Finish sending mail");
