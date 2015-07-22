@@ -14,7 +14,7 @@ List changes on 13.05.2015
     1) Добавлено docstring для библиотеки.
 '''
 
-def getResult(login,password,host,port,sid,query):
+def getResult(login,password,host,port,sid,servicename,query):
     u"""Функция получения результата вызова select-запроса.
     Входные параметры: 
         login - логин для подключения к БД.
@@ -22,10 +22,14 @@ def getResult(login,password,host,port,sid,query):
         host - адрес БД.
         port - порт БД.
         sid - СИД БД.
+        servicename - имя сервиса. Используется, если параметр sid не заполнен
         query - select-запрос.
     Выходные параметры: результат выполнения запроса в виде списка кортежей.
     """
-    tns = cx_Oracle.makedsn(host,port,sid);
+    if(sid is not None):
+        tns = cx_Oracle.makedsn(host,port,sid);
+    else:
+        tns = cx_Oracle.makedsn(host = host,port = port,service_name = servicename);
     con = cx_Oracle.connect(login,password,tns,threaded=True);
     cur = con.cursor();
     cur.execute(query);

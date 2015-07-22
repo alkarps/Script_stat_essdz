@@ -1,4 +1,14 @@
+/mailsettings.py
+
+/settingfile.py
+
+/test.py
+/script.py
 .idea
-/ESSDZ_stat_log.log
-/*.pyc
-/*.png
+
+*.log
+
+*.pyc
+
+*.png
+
